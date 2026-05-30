@@ -87,23 +87,23 @@ flowchart TD
 
     A --> B[httpx.post to /analyse]
 
-    B --> C[FastAPI endpoint /analyse]
+    B --> C[FastAPI endpoint <br>/analyse]
 
-    C --> D[Validate problem statement]
+    C --> D[Validate problem <br>statement]
 
     D -- Missing --> E[Return HTTP 400]
 
-    D -- Valid --> F[run_analysis problem and code]
+    D -- Valid --> F[run_analysis problem <br>and code]
 
     F --> G[get_chain has_code]
 
-    G --> H[Select appropriate prompt template]
+    G --> H[Select appropriate <br>prompt template]
 
-    H --> I[Inject format instructions]
+    H --> I[Inject format <br>instructions]
 
-    I --> J[Create ChatGoogleGenerativeAI instance]
+    I --> J[Create ChatGoogleGenerativeAI <br>instance]
 
-    J --> K[Prompt to LLM to PydanticOutputParser]
+    J --> K[Prompt to LLM to <br>PydanticOutputParser]
 
     K --> L[Gemini generates response]
 
@@ -111,7 +111,7 @@ flowchart TD
 
     M --> N[Return JSON response]
 
-    J -. Reads GOOGLE_API_KEY and MODEL_NAME .-> O[(.env)]
+    J -. Reads GOOGLE_API_KEY <br>and <br>MODEL_NAME .-> O[(.env)]
 
-    C -. Loads env vars via python-dotenv .-> O
+    C -. Loads env vars <br>via <br>python-dotenv .-> O
 ```
