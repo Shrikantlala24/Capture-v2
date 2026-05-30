@@ -11,25 +11,25 @@ This shows the end-user path from input to rendered analysis results.
 flowchart TD
 
     A[User opens Streamlit UI]
-    A --> B[Enter problem statement and optional code]
+    A --> B["Enter problem statement <br>and optional code"]
 
     B --> C{Click Analyse?}
 
     C -- No --> B
 
-    C -- Yes --> D[Validate problem statement]
+    C -- Yes --> D[Validate problem <br>statement]
 
-    D -- Invalid --> E[Show error:<br/>"Please provide a problem statement"]
+    D -- Invalid --> E[Show error: Please provide a <br>problem statement]
 
-    D -- Valid --> F[Send POST request to /analyse endpoint]
+    D -- Valid --> F[Send POST request to <br>/analyse endpoint]
 
     F --> G{HTTP Response}
 
-    G -- 200 OK --> H[Render tags, logic blocks, errors,<br/>complexity and approaches]
+    G -- 200 OK --> H[Render tags, logic blocks, <br>errors, complexity and <br>approaches]
 
-    G -- Error --> I[Show API or connectivity error]
+    G -- Error --> I[Show API or <br>connectivity error]
 
-    F -. Uses FASTAPI_HOST from .env .-> J[(.env)]
+    F -. Uses FASTAPI_HOST .-> J[(.env)]
 ```
 
 
@@ -51,7 +51,7 @@ flowchart LR
     end
 
     subgraph LLM Layer
-        Gemini[Google Gemini<br/>via langchain-google-genai]
+        Gemini[Google Gemini via langchain-google-genai]
     end
 
     UI -->|HTTP JSON| API
@@ -85,7 +85,7 @@ flowchart TD
 
     A[User clicks Analyse button]
 
-    A --> B[httpx.post('/analyse')]
+    A --> B[httpx.post to /analyse]
 
     B --> C[FastAPI endpoint /analyse]
 
@@ -93,9 +93,9 @@ flowchart TD
 
     D -- Missing --> E[Return HTTP 400]
 
-    D -- Valid --> F[run_analysis(problem, code)]
+    D -- Valid --> F[run_analysis problem and code]
 
-    F --> G[get_chain(has_code)]
+    F --> G[get_chain has_code]
 
     G --> H[Select appropriate prompt template]
 
@@ -103,7 +103,7 @@ flowchart TD
 
     I --> J[Create ChatGoogleGenerativeAI instance]
 
-    J --> K[Prompt -> LLM -> PydanticOutputParser]
+    J --> K[Prompt to LLM to PydanticOutputParser]
 
     K --> L[Gemini generates response]
 
@@ -111,8 +111,7 @@ flowchart TD
 
     M --> N[Return JSON response]
 
-    J -. Reads GOOGLE_API_KEY and MODEL_NAME from .env .-> O[(.env)]
+    J -. Reads GOOGLE_API_KEY and MODEL_NAME .-> O[(.env)]
 
-    C -. Loads environment variables using python-dotenv .-> O
+    C -. Loads env vars via python-dotenv .-> O
 ```
-
