@@ -16,7 +16,7 @@ load_dotenv()
 
 st.set_page_config(page_title="DSA Analyser", layout="wide")
 
-st.title("DSA Analyser")
+st.title("Capture: DSA Analyser")
 st.markdown(
     "Paste a problem statement and (optionally) your code to get a structured analysis."
 )
