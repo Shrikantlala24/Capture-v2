@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+@config '../tailwind.config.js';
+@import 'tailwindcss';
+
+:root {
+  --ink: #1d1b18;
+  --mist: #5e5a52;
+  --sand: #f7f2e8;
+  --accent: #f05b3b;
+  --accent-2: #0f9e9c;
+  --card: rgba(255, 255, 255, 0.9);
+  --line: #e6dfd3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(240, 91, 59, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 82% 10%, rgba(15, 158, 156, 0.2) 0%, transparent 40%),
+    linear-gradient(150deg, #f7f2e8 0%, #f6f6f1 45%, #fff8eb 100%);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: 'Fraunces', serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out both;
+}
+
+.animate-float {
+  animation: floaty 14s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-float {
+    animation: none;
+  }
+}
