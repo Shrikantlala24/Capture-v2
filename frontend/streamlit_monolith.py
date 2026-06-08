@@ -9,7 +9,10 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from app.chains.analyser import run_analysis
+# Use an abstraction for analysis to support future API calls
+def get_analysis_service():
+    from app.chains.analyser import run_analysis
+    return run_analysis
 
 load_dotenv()
 
@@ -35,29 +38,30 @@ h1, h2, h3 { font-family: 'Fraunces', serif; letter-spacing: -0.02em; }
     border-left: 4px solid #7c3aed;
     border-radius: 0 12px 12px 0;
     padding: 1rem 1.25rem; margin: 0.75rem 0;
-    font-size: 1.05rem; color: #1d1b18;
+    font-size: 1.05rem; 
+    /* Use a color that contrasts with both light/dark backgrounds */
+    color: #2d2a26; 
 }
 .pattern-box {
     background: #f0fdf4; border: 1px solid #bbf7d0;
     border-radius: 10px; padding: 0.6rem 1rem;
-    font-size: 0.9rem; color: #166534;
+    font-size: 0.9rem; 
+    /* Use a color that contrasts with both light/dark backgrounds */
+    color: #166534;
     display: inline-block; margin-bottom: 0.5rem;
 }
-.mode-card {
-    border: 2px solid #e5e7eb; border-radius: 14px;
-    padding: 1rem; cursor: pointer; transition: all 0.2s;
-    background: white;
-}
-.mode-card:hover { border-color: #7c3aed; }
 .similar-card {
-    background: #fafafa; border: 1px solid #e5e7eb;
-    border-radius: 10px; padding: 0.75rem 1rem; margin: 0.4rem 0;
+    background-color: #f3f4f6; 
+    border: 1px solid #d1d5db;
+    border-radius: 10px; 
+    padding: 0.75rem 1rem; 
+    margin: 0.4rem 0;
+    color: #1f2937;
 }
-.diff-easy { color: #16a34a; font-weight: 600; }
-.diff-medium { color: #d97706; font-weight: 600; }
-.diff-hard { color: #dc2626; font-weight: 600; }
-.stExpander { border-radius: 10px !important; }
-</style>
+/* Ensure text inside expanders/tabs remains visible in both modes */
+.stExpander, .stTabs {
+    color: inherit !important;
+}
 """, unsafe_allow_html=True)
 
 # ── Header ────────────────────────────────────────────────────────────────────
@@ -95,6 +99,13 @@ st.caption(f"**Mode {selected_mode}:** {mode_desc}")
 st.divider()
 
 # ── Inputs ────────────────────────────────────────────────────────────────────
+st.sidebar.markdown("### 🔑 API Configuration")
+st.sidebar.info(
+    "Note: Default environment API keys are limited to 2 uses. "
+    "For unlimited access, please provide your own Google AI Studio API key below."
+)
+user_api_key = st.sidebar.text_input("Your API Key (Optional)", type="password", help="Enter your Google AI Studio API key for unlimited access.")
+
 col_left, col_right = st.columns(2)
 
 with col_left:
@@ -142,11 +153,14 @@ if run:
     else:
         with st.spinner("Analysing..."):
             try:
+                # Use the abstracted analysis service
+                run_analysis = get_analysis_service()
                 result = run_analysis(
                     problem=problem.strip(),
                     mode=selected_mode,
                     code=code.strip() if code.strip() else None,
                     user_approach=user_approach.strip() if user_approach.strip() else None,
+                    user_api_key=user_api_key.strip() if user_api_key.strip() else None,
                 )
                 st.session_state["result"] = result
                 st.session_state["last_problem"] = problem.strip()
@@ -177,117 +191,83 @@ if result:
 
     st.divider()
 
-    # ── Approach ladder ───────────────────────────────────────────────────────
-    st.markdown("### Approach Ladder")
-    approaches = getattr(result, "approaches", None)
+    # ── Approach ladder (70%) and Side info (30%) ───────────────────────
+    col_main, col_side = st.columns([0.7, 0.3])
 
-    approach_order = [
-        ("brute", "🔨 Brute Force"),
-        ("better", "⚙️ Better"),
-        ("optimal", "🚀 Optimal"),
-    ]
+    with col_main:
+        st.markdown("### Approach Ladder")
+        approaches = getattr(result, "approaches", None)
 
-    # For mode 3 collapse brute by default
-    default_open = {
-        1: ["brute", "better", "optimal"],
-        2: ["brute", "better", "optimal"],
-        3: ["better", "optimal"],
-        4: ["brute", "better", "optimal"],
-    }[selected_mode]
+        approach_order = [
+            ("brute", "🔨 Brute Force"),
+            ("better", "⚙️ Better"),
+            ("optimal", "🚀 Optimal"),
+        ]
 
-    if approaches:
-        for key, label in approach_order:
-            data = getattr(approaches, key, None)
-            if not data:
-                continue
+        if approaches:
+            for key, label in approach_order:
+                data = getattr(approaches, key, None)
+                if not data:
+                    continue
 
-            with st.expander(f"{label}  ·  `{getattr(data, 'time', 'N/A')}`", expanded=(key in default_open)):
-                st.write(getattr(data, "description", ""))
+                # Closed by default so user selects
+                with st.expander(f"{label}  ·  `{getattr(data, 'time', 'N/A')}`", expanded=False):
+                    st.write(getattr(data, "description", ""))
 
-                technique = getattr(data, "technique", None)
-                if technique:
-                    st.caption(f"Technique: **{technique}**")
+                    technique = getattr(data, "technique", None)
+                    if technique:
+                        st.caption(f"Technique: **{technique}**")
 
-                # Progressive toggles
-                t1, t2, t3 = st.tabs(["💬 Hint", "📋 Pseudocode", "🔑 Key Code"])
+                    t1, t2, t3 = st.tabs(["💬 Hint", "📋 Pseudocode", "🔑 Key Code"])
+                    with t1:
+                        hint = getattr(data, "hint", None)
+                        if hint: st.info(hint)
+                        insight = getattr(data, "key_insight", None)
+                        if insight: st.success(f"Aha: {insight}")
+                        why = getattr(data, "why_insufficient", None)
+                        if why and key != "optimal": st.warning(f"Why not enough: {why}")
+                    with t2:
+                        pseudo = getattr(data, "pseudocode", None)
+                        if pseudo: st.code(pseudo, language=None)
+                        else: st.caption("No pseudocode available.")
+                    with t3:
+                        key_code = getattr(data, "key_code_block", None)
+                        if key_code:
+                            st.code(key_code)
+                            st.caption("Core logic only — no boilerplate.")
+                        else: st.caption("No code block available.")
 
-                with t1:
-                    hint = getattr(data, "hint", None)
-                    if hint:
-                        st.info(hint)
-                    insight = getattr(data, "key_insight", None)
-                    if insight:
-                        st.success(f"Aha: {insight}")
-                    why = getattr(data, "why_insufficient", None)
-                    if why and key != "optimal":
-                        st.warning(f"Why not enough: {why}")
-
-                with t2:
-                    pseudo = getattr(data, "pseudocode", None)
-                    if pseudo:
-                        st.code(pseudo, language=None)
-                    else:
-                        st.caption("No pseudocode available.")
-
-                with t3:
-                    key_code = getattr(data, "key_code_block", None)
-                    if key_code:
-                        st.code(key_code)
-                        st.caption("Core logic only — no boilerplate.")
-                    else:
-                        st.caption("No code block available.")
-
-    st.divider()
-
-    # ── Complexity ────────────────────────────────────────────────────────────
-    complexity = getattr(result, "complexity", None)
-    if complexity:
-        st.markdown("### Complexity")
-        c1, c2 = st.columns(2)
-        time = getattr(complexity, "time", None)
-        space = getattr(complexity, "space", None)
-        with c1:
-            st.markdown("**Time**")
+    with col_side:
+        # ── Complexity ────────────────────────────────────────────────────────────
+        complexity = getattr(result, "complexity", None)
+        if complexity:
+            st.markdown("### Complexity")
+            time = getattr(complexity, "time", None)
+            space = getattr(complexity, "space", None)
+            st.markdown("#### Time")
             if time:
                 st.write(f"Best: `{getattr(time, 'best', 'N/A')}`")
                 st.write(f"Average: `{getattr(time, 'average', 'N/A')}`")
                 st.write(f"Worst: `{getattr(time, 'worst', 'N/A')}`")
-        with c2:
-            st.markdown("**Space**")
+            st.markdown("#### Space")
             if space:
                 st.write(f"Value: `{getattr(space, 'value', 'N/A')}`")
 
-    # ── Error diagnosis ───────────────────────────────────────────────────────
-    last_code = st.session_state.get("last_code", "")
-    errors = getattr(result, "errors", None)
-    if last_code and errors:
-        st.divider()
-        st.markdown("### Error Diagnosis")
-        if getattr(errors, "found", False):
-            for item in getattr(errors, "diagnosis", []):
-                line = getattr(item, "line", None)
-                label = f"Line {line}" if line else "?"
-                st.warning(f"**{getattr(item, 'type', 'Error')}** ({label})")
-                st.write(getattr(item, "explanation", ""))
-                st.code(getattr(item, "fix", ""), language=None)
-        else:
-            st.success("No errors found in your code.")
+        # ── Similar problems ──────────────────────────────────────────────────────
+        similar = getattr(result, "similar_problems", [])
+        if similar:
+            st.markdown("### Keep Going")
+            for prob in similar:
+                diff = getattr(prob, "difficulty", "").lower()
+                diff_class = f"diff-{diff}" if diff in ("easy", "medium", "hard") else ""
+                pat = getattr(prob, "pattern", "")
+                title = getattr(prob, "title", "")
+                st.markdown(
+                    f'<div class="similar-card">'
+                    f'<strong>{html.escape(title)}</strong> &nbsp;'
+                    f'<span class="{diff_class}">{html.escape(getattr(prob, "difficulty", ""))}</span><br/>'
+                    f'<small style="color:#6b7280">Pattern: {html.escape(pat)}</small>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
-    # ── Similar problems ──────────────────────────────────────────────────────
-    similar = getattr(result, "similar_problems", [])
-    if similar:
-        st.divider()
-        st.markdown("### Keep Going — Similar Problems")
-        for prob in similar:
-            diff = getattr(prob, "difficulty", "").lower()
-            diff_class = f"diff-{diff}" if diff in ("easy", "medium", "hard") else ""
-            pat = getattr(prob, "pattern", "")
-            title = getattr(prob, "title", "")
-            st.markdown(
-                f'<div class="similar-card">'
-                f'<strong>{html.escape(title)}</strong> &nbsp;'
-                f'<span class="{diff_class}">{html.escape(getattr(prob, "difficulty", ""))}</span><br/>'
-                f'<small style="color:#6b7280">Pattern: {html.escape(pat)}</small>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )

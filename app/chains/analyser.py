@@ -7,18 +7,17 @@ from langchain_core.output_parsers import PydanticOutputParser
 from app.prompts.analyse import PROMPT_MAP
 from app.schemas.models import AnalysisResult, SimilarProblem
 from app.db.problems import build_dataset_context
-from app.llm_manager import LLMManager # Import the LLMManager
 
 load_dotenv()
 
 parser = PydanticOutputParser(pydantic_object=AnalysisResult)
 
-# Initialize LLMManager globally for simplicity. Consider a dependency injection for larger apps.
-llm_manager = LLMManager()
-
-def _llm(model_name: str, api_key: str):
+def _llm():
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY is not set.")
     return ChatGoogleGenerativeAI(
-        model=model_name,
+        model="gemini-3.1-flash-lite", # Simplification: Using a reliable standard model
         google_api_key=api_key,
         temperature=0.2,
     )
@@ -29,6 +28,7 @@ def run_analysis(
     mode: Literal[1, 2, 3, 4] = 1,
     code: Optional[str] = None,
     user_approach: Optional[str] = None,
+    user_api_key: Optional[str] = None,
 ) -> AnalysisResult:
     has_code = bool(code and code.strip())
     prompt = PROMPT_MAP[(mode, has_code)]
@@ -45,34 +45,22 @@ def run_analysis(
     if mode == 4:
         inputs["user_approach"] = user_approach or ""
 
-    # Construct the full prompt text to estimate tokens
-    full_prompt_text = prompt.format(**{k: v for k, v in inputs.items() if k != "problem" and v is not None}) + problem # A basic estimation
+    def _llm_with_key(key: str):
+        return ChatGoogleGenerativeAI(
+            model="gemini-3.1-flash-lite",
+            google_api_key=key,
+            temperature=0.2,
+            max_retries=3, # Increase resilience
+            timeout=60,    # Increase timeout to prevent premature disconnection
+        )
 
-    # Get model from manager, assuming 1 token per 4 characters for a very rough estimate
-    # A more accurate token estimation would require a proper tokenization library
-    requested_tokens_estimate = len(full_prompt_text) // 4 + 50 # Add a buffer
-    model_info = llm_manager.get_model(requested_tokens=requested_tokens_estimate)
-    if not model_info:
-        raise RuntimeError("No LLM model available within current rate limits.")
+    # Use user key if provided, else fallback to environment
+    api_key = user_api_key or os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise ValueError("No API key provided. Please set GOOGLE_API_KEY or provide one in the UI.")
 
-    selected_model_name = model_info["name"]
-    selected_api_key = model_info["api_key"]
-
-    # Fallback to GOOGLE_API_KEY if the model-specific API key is not set or is a placeholder
-    if not selected_api_key or "YOUR_GEMINI" in selected_api_key:
-        selected_api_key = os.getenv("GOOGLE_API_KEY")
-        if not selected_api_key:
-            raise ValueError("GOOGLE_API_KEY is not set, and no specific API key found for selected model.")
-
-    llm_instance = _llm(selected_model_name, selected_api_key)
-
-    chain = prompt.partial(**{k: v for k, v in inputs.items() if k != "problem"}) | llm_instance | parser
-    result: AnalysisResult = chain.invoke({"problem": problem})
-
-    # After successful invocation, update usage.
-    # For a more precise token count, you'd need to extract tokens from the actual LLM response if available.
-    llm_manager.update_usage(selected_model_name, tokens_used=len(str(result)) // 4 + 50) # Estimate response tokens too
-
+    chain = prompt | _llm_with_key(api_key) | parser
+    result: AnalysisResult = chain.invoke(inputs)
 
     # Enrich similar problems from DB if LLM didn't return enough
     if db_similar and len(result.similar_problems) < 3:
