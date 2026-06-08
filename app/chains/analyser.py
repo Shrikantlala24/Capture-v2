@@ -12,17 +12,6 @@ load_dotenv()
 
 parser = PydanticOutputParser(pydantic_object=AnalysisResult)
 
-def _llm():
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise ValueError("GOOGLE_API_KEY is not set.")
-    return ChatGoogleGenerativeAI(
-        model="gemini-3.1-flash-lite", # Simplification: Using a reliable standard model
-        google_api_key=api_key,
-        temperature=0.2,
-    )
-
-
 def run_analysis(
     problem: str,
     mode: Literal[1, 2, 3, 4] = 1,
@@ -33,21 +22,6 @@ def run_analysis(
     has_code = bool(code and code.strip())
     prompt = PROMPT_MAP[(mode, has_code)]
 
-<<<<<<< Updated upstream
-=======
-def run_analysis(
-    problem: str,
-    mode: Optional[int] = 1,
-    code: Optional[str] = None,
-    user_approach: Optional[str] = None,
-    user_api_key: Optional[str] = None,
-) -> AnalysisResult:
-    has_code = bool(code and code.strip())
-    # Re-importing PROMPT_MAP if it was lost in the last edit
-    from app.prompts.analyse import PROMPT_MAP
-    prompt = PROMPT_MAP[(mode, has_code)]
-
->>>>>>> Stashed changes
     dataset_context, db_similar = build_dataset_context(problem)
 
     inputs = {
@@ -65,13 +39,8 @@ def run_analysis(
             model="gemini-3.1-flash-lite",
             google_api_key=key,
             temperature=0.2,
-<<<<<<< Updated upstream
-            max_retries=3, # Increase resilience
-            timeout=60,    # Increase timeout to prevent premature disconnection
-=======
             max_retries=3,
             timeout=60,
->>>>>>> Stashed changes
         )
 
     # Use user key if provided, else fallback to environment
