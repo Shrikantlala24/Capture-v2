@@ -1,7 +1,3 @@
-Now I have a thorough picture of the entire codebase. Here is the comprehensive summary:
-
----
-
 ## 1. What Is This Project About?
 
 **Capture** (formerly branded as **DSA Analyser**) is a developer tool that takes a **Data Structures & Algorithms (DSA) problem statement** (and an optional user-submitted code attempt) and returns a **structured AI-powered analysis**. The analysis includes:
