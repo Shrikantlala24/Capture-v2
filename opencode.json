@@ -5,16 +5,6 @@
       "type": "remote",
       "url": "https://docs.langchain.com/mcp",
       "enabled": true
-    },
-    "clerk": {
-      "type": "remote",
-      "url": "https://mcp.clerk.com/mcp",
-      "enabled": true
-    },
-    "huggingface": {
-      "type": "remote",
-      "url": "https://huggingface.co/mcp",
-      "enabled": true
     }
   }
 }
