@@ -25,6 +25,7 @@ class AnalyseRequest(BaseModel):
     mode: Literal[1, 2, 3, 4] = Field(1, description="1=First time, 2=Stuck, 3=Want better, 4=Intuition-first")
     code: Optional[str] = None
     user_approach: Optional[str] = None  # mode 4 only
+    user_api_key: Optional[str] = None
 
 
 @app.post("/analyse", response_model=AnalysisResult)
@@ -39,6 +40,7 @@ def analyse(req: AnalyseRequest) -> AnalysisResult:
             mode=req.mode,
             code=req.code,
             user_approach=req.user_approach,
+            user_api_key=req.user_api_key,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
