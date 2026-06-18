@@ -150,7 +150,7 @@ export default function Analyze() {
       <header className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <div className="flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">[+] analysis workspace</p>
-          <h1 className="text-4xl font-semibold">Run one focused reasoning pass.</h1>
+          <h1 className="text-5xl font-semibold">Run one focused reasoning pass.</h1>
           <p className="max-w-3xl text-muted-foreground">
             Choose the context you are in, drop the prompt in, and let the result
             stay legible: pattern, tradeoffs, hints, pseudocode, key code, and
@@ -169,8 +169,9 @@ export default function Analyze() {
               type="password"
               value={userApiKey}
               onChange={(event) => setUserApiKey(event.target.value)}
-              placeholder="AIzaSy..."
+              placeholder="AIzaSy…"
               autoComplete="off"
+              spellCheck={false}
             />
           </CardContent>
         </Card>
@@ -185,11 +186,10 @@ export default function Analyze() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <ToggleGroup
-            type="single"
-            value={mode}
+            value={[mode]}
             onValueChange={(value) => {
-              if (value) {
-                setMode(value as '1' | '2' | '3' | '4')
+              if (value[0]) {
+                setMode(value[0] as '1' | '2' | '3' | '4')
               }
             }}
             className="flex w-full flex-col gap-2 md:grid md:grid-cols-2 xl:grid-cols-4"
@@ -222,6 +222,7 @@ export default function Analyze() {
               onChange={(event) => setProblem(event.target.value)}
               placeholder="Paste the problem statement or just the problem name."
               className="min-h-72"
+              spellCheck={false}
             />
           </CardContent>
         </Card>
@@ -251,6 +252,7 @@ export default function Analyze() {
                   : 'Paste your code attempt.'
               }
               className="min-h-72"
+              spellCheck={false}
             />
           </CardContent>
         </Card>
@@ -258,9 +260,9 @@ export default function Analyze() {
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={handleAnalyze} disabled={status === 'loading'}>
-          {status === 'loading' ? 'Analyzing...' : 'Analyze'}
+          {status === 'loading' ? 'Analyzing…' : 'Analyze'}
         </Button>
-        <Button variant="outline" onClick={handleClear}>
+        <Button variant="outline" onClick={handleClear} disabled={status === 'loading'}>
           Clear
         </Button>
       </div>
@@ -335,13 +337,12 @@ export default function Analyze() {
                     </CardHeader>
                     <CardContent className="flex flex-col gap-5">
                       <ToggleGroup
-                        type="single"
-                        value={activePanel}
+                        value={[activePanel]}
                         onValueChange={(value) => {
-                          if (value) {
+                          if (value[0]) {
                             setActivePanels((current) => ({
                               ...current,
-                              [item.key]: value as 'hint' | 'pseudocode' | 'keycode',
+                              [item.key]: value[0] as 'hint' | 'pseudocode' | 'keycode',
                             }))
                           }
                         }}

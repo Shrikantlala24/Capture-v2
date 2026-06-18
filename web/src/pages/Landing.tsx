@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import AsciiLogo from '@/components/AsciiLogo'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -47,12 +47,12 @@ export default function Landing() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link to="/analyze">Open analyzer</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/history">Read local history</Link>
-            </Button>
+            <Link to="/analyze" className={buttonVariants()}>
+              Open analyzer
+            </Link>
+            <Link to="/history" className={buttonVariants({ variant: 'outline' })}>
+              Read local history
+            </Link>
           </div>
           <div className="flex flex-wrap gap-2">
             {features.map((feature) => (
@@ -89,7 +89,7 @@ export default function Landing() {
 
       <section className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-semibold">[+] how it works</h2>
+          <h2 className="text-2xl font-semibold text-balance">[+] how it works</h2>
           <p className="max-w-2xl text-muted-foreground">
             This is not a code generator front disguised as a tutor. The flow is
             built to keep reasoning visible.
@@ -112,7 +112,7 @@ export default function Landing() {
 
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <div className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold">[+] what the web app now feels like</h2>
+          <h2 className="text-2xl font-semibold text-balance">[+] what the web app now feels like</h2>
           <p className="text-muted-foreground">
             Monospaced, flatter, and more deliberate. Hairline borders replace
             glow. ASCII markers replace decorative icons. The result panel reads

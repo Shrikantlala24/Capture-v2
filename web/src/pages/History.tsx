@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import TagList from '@/components/TagList'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ const truncate = (value: string, limit = 160) => {
   if (clean.length <= limit) {
     return clean
   }
-  return `${clean.slice(0, limit).trim()}...`
+  return `${clean.slice(0, limit).trim()}…`
 }
 
 const formatDate = (value: string) => {
@@ -50,7 +50,7 @@ export default function History() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">[+] local history</p>
-            <h1 className="text-4xl font-semibold">Session archive</h1>
+            <h1 className="text-5xl font-semibold">Session archive</h1>
             <p className="max-w-2xl text-muted-foreground">
               Every successful analysis is saved in this browser so you can reopen
               a line of thinking without starting from zero.
@@ -72,9 +72,9 @@ export default function History() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild>
-              <Link to="/analyze">Start analyzing</Link>
-            </Button>
+            <Link to="/analyze" className={buttonVariants()}>
+              Start analyzing
+            </Link>
           </CardContent>
         </Card>
       ) : (
@@ -83,13 +83,16 @@ export default function History() {
             <Card key={entry.id}>
               <CardHeader>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex min-w-0 flex-col gap-2">
                     <CardTitle>{truncate(entry.problem, 88)}</CardTitle>
                     <CardDescription>{formatDate(entry.createdAt)}</CardDescription>
                   </div>
-                  <Button asChild variant="outline">
-                    <Link to={`/analyze?session=${entry.id}`}>Open session</Link>
-                  </Button>
+                  <Link
+                    to={`/analyze?session=${entry.id}`}
+                    className={buttonVariants({ variant: 'outline' })}
+                  >
+                    Open session
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
