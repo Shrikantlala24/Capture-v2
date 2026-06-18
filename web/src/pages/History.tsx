@@ -1,7 +1,15 @@
-import { CalendarClock, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import TagList from '../components/TagList'
+import TagList from '@/components/TagList'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { clearHistory, loadHistory } from '../lib/storage'
 import type { HistoryEntry } from '../lib/types'
 
@@ -37,70 +45,60 @@ export default function History() {
   }
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-mist">History</p>
-          <h1 className="text-3xl sm:text-4xl">Session history</h1>
-          <p className="text-mist">
-            Every analysis you run is stored locally in your browser.
-          </p>
+    <div className="flex flex-col gap-10">
+      <header className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">[+] local history</p>
+            <h1 className="text-4xl font-semibold">Session archive</h1>
+            <p className="max-w-2xl text-muted-foreground">
+              Every successful analysis is saved in this browser so you can reopen
+              a line of thinking without starting from zero.
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleClear} disabled={entries.length === 0}>
+            Clear history
+          </Button>
         </div>
-        <button
-          type="button"
-          onClick={handleClear}
-          className="inline-flex items-center gap-2 rounded-full border border-line bg-white/80 px-4 py-2 text-sm font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={entries.length === 0}
-        >
-          <Trash2 size={16} /> Clear history
-        </button>
+        <Separator />
       </header>
 
       {entries.length === 0 ? (
-        <div className="rounded-3xl border border-line bg-card p-8 text-center shadow-soft">
-          <p className="text-lg">No sessions yet.</p>
-          <p className="mt-2 text-sm text-mist">
-            Run an analysis to build your history.
-          </p>
-          <Link
-            to="/analyze"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2 text-sm font-semibold text-sand shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-          >
-            Start analyzing
-          </Link>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>[x] no sessions yet</CardTitle>
+            <CardDescription>
+              Run a problem analysis and this page will become your local replay log.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link to="/analyze">Start analyzing</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-6">
+        <div className="flex flex-col gap-5">
           {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="rounded-3xl border border-line bg-card p-6 shadow-soft"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-lg font-semibold">
-                    {truncate(entry.problem, 72)}
-                  </p>
-                  <div className="mt-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-mist">
-                    <CalendarClock size={14} /> {formatDate(entry.createdAt)}
+            <Card key={entry.id}>
+              <CardHeader>
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex flex-col gap-2">
+                    <CardTitle>{truncate(entry.problem, 88)}</CardTitle>
+                    <CardDescription>{formatDate(entry.createdAt)}</CardDescription>
                   </div>
+                  <Button asChild variant="outline">
+                    <Link to={`/analyze?session=${entry.id}`}>Open session</Link>
+                  </Button>
                 </div>
-                <Link
-                  to={`/analyze?session=${entry.id}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-line bg-white/80 px-4 py-2 text-sm font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-                >
-                  Open session
-                </Link>
-              </div>
-
-              <p className="mt-4 text-sm text-mist">
-                {truncate(entry.problem)}
-              </p>
-
-              <div className="mt-4">
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <p className="text-sm leading-7 text-muted-foreground">
+                  {truncate(entry.problem)}
+                </p>
                 <TagList tags={entry.result.tags} emptyLabel="No tags" />
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

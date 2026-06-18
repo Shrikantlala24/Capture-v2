@@ -1,162 +1,134 @@
-import { ArrowRight, Layers, LineChart, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import AsciiLogo from '@/components/AsciiLogo'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 
-const highlights = [
-  {
-    title: 'Signal in context',
-    description:
-      'Surface the concept tags and logic blocks before you start coding.',
-    icon: Sparkles,
-  },
-  {
-    title: 'Complexity first',
-    description: 'See time and space tradeoffs at a glance, not after the fact.',
-    icon: LineChart,
-  },
-  {
-    title: 'Approach ladder',
-    description:
-      'Compare brute, better, and optimal strategies without context switching.',
-    icon: Layers,
-  },
+const features = [
+  'Intuition hooks before code',
+  'Pattern labels and concept tags',
+  'Three-level approach ladder',
+  'Complexity snapshot',
+  'Error diagnosis for code attempts',
+  'Local browser session history',
 ]
 
-const pills = [
-  'Concept tags',
-  'Logic blocks',
-  'Error diagnosis',
-  'Complexity notes',
-  'Approach ladder',
+const steps = [
+  ['[+] paste', 'Problem statement, code, or raw intuition.'],
+  ['[+] select', 'Choose whether you are new, stuck, optimizing, or thinking aloud.'],
+  ['[+] inspect', 'Read hints, pseudocode, key code blocks, and similar problems.'],
 ]
 
 export default function Landing() {
   return (
-    <div className="space-y-16">
-      <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-6 animate-fade-up">
-          <p className="text-xs uppercase tracking-[0.45em] text-mist">Capture</p>
-          <h1 className="text-4xl leading-tight sm:text-5xl">
-            See the algorithm, not just the answer.
-          </h1>
-          <p className="text-lg text-mist">
-            Capture turns DSA problems into structured reasoning. Go from raw
-            statement to a clear strategy in one focused pass.
-          </p>
+    <div className="flex flex-col gap-24">
+      <section className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_28rem]">
+        <div className="flex flex-col gap-6">
+          <Badge variant="outline">[+] capture / dsa coach / web</Badge>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm font-medium text-muted-foreground">
+              The interface reads like a notes file, but the output is a guided
+              reasoning session.
+            </p>
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
+              See the algorithm before you see the answer.
+            </h1>
+            <p className="max-w-2xl text-base leading-7 text-muted-foreground">
+              Capture turns a DSA prompt into a structured walkthrough: what pattern
+              it smells like, what approach tiers exist, where your current code is
+              drifting, and what to try next without collapsing into spoiler soup.
+            </p>
+          </div>
           <div className="flex flex-wrap gap-3">
-            <Link
-              to="/analyze"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2 text-sm font-semibold text-sand shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-            >
-              Start analyzing
-              <ArrowRight size={16} />
-            </Link>
-            <Link
-              to="/history"
-              className="inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-5 py-2 text-sm font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-            >
-              View history
-            </Link>
+            <Button asChild>
+              <Link to="/analyze">Open analyzer</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/history">Read local history</Link>
+            </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {pills.map((pill) => (
-              <span
-                key={pill}
-                className="rounded-full border border-line bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-mist"
-              >
-                {pill}
-              </span>
+            {features.map((feature) => (
+              <Badge key={feature} variant="outline">
+                [+] {feature}
+              </Badge>
             ))}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-line bg-card p-6 shadow-soft animate-fade-up">
-          <div className="text-xs uppercase tracking-[0.4em] text-mist">
-            Analysis snapshot
-          </div>
-          <div className="mt-5 grid gap-4">
-            <div className="rounded-2xl border border-line bg-white/80 p-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-mist">
-                Concept
-              </p>
-              <p className="text-lg font-semibold">Two pointers</p>
-              <p className="text-sm text-mist">
-                Reduce comparisons with a sliding boundary.
-              </p>
+        <Card className="border-border bg-primary text-primary-foreground">
+          <CardHeader>
+            <CardTitle className="text-primary-foreground">[x] terminal preview</CardTitle>
+            <CardDescription className="text-primary-foreground/70">
+              One dark surface. Everything else stays flat on cream.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 text-sm leading-7">
+            <AsciiLogo />
+            <div className="rounded-sm border border-primary-foreground/20 bg-primary-foreground/8 px-3 py-2 text-primary-foreground/90">
+              {`> mode: "I'm stuck"
+> pattern: sliding window
+> hint: keep one invariant true while the right pointer moves
+> next: compare brute vs optimal before coding`}
             </div>
-            <div className="rounded-2xl border border-line bg-white/80 p-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-mist">
-                Complexity
-              </p>
-              <p className="text-lg font-semibold">O(n log n)</p>
-              <p className="text-sm text-mist">Space stays O(1).</p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.16em] text-primary-foreground/60">
+              <span>tab switch ladder</span>
+              <span>ctrl-k inspect history</span>
+              <span>local-only sessions</span>
             </div>
-            <div className="rounded-2xl border border-line bg-white/80 p-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-mist">
-                Next action
-              </p>
-              <p className="text-sm text-mist">
-                Validate the optimal approach before coding.
-              </p>
-            </div>
-          </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl font-semibold">[+] how it works</h2>
+          <p className="max-w-2xl text-muted-foreground">
+            This is not a code generator front disguised as a tutor. The flow is
+            built to keep reasoning visible.
+          </p>
+        </div>
+        <Separator />
+        <div className="grid gap-4 md:grid-cols-3">
+          {steps.map(([label, body]) => (
+            <Card key={label}>
+              <CardHeader>
+                <CardTitle>{label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-7 text-muted-foreground">{body}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        {highlights.map((item, index) => {
-          const Icon = item.icon
-          return (
-            <div
-              key={item.title}
-              className="rounded-3xl border border-line bg-card p-6 shadow-soft animate-fade-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/70 text-ink shadow-soft">
-                <Icon size={20} />
-              </div>
-              <h3 className="mt-4 text-xl">{item.title}</h3>
-              <p className="mt-2 text-sm text-mist">{item.description}</p>
-            </div>
-          )
-        })}
-      </section>
-
-      <section className="grid gap-6 rounded-3xl border border-line bg-card p-8 shadow-soft lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-4">
-          <h2 className="text-3xl">How Capture works</h2>
-          <p className="text-mist">
-            Paste the problem, optionally add your code, and let Capture return a
-            structured analysis you can act on immediately.
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl font-semibold">[+] what the web app now feels like</h2>
+          <p className="text-muted-foreground">
+            Monospaced, flatter, and more deliberate. Hairline borders replace
+            glow. ASCII markers replace decorative icons. The result panel reads
+            more like a working notebook than a startup landing page.
           </p>
-          <div className="grid gap-3 text-sm text-mist">
-            <div className="flex items-center justify-between rounded-2xl border border-line bg-white/70 px-4 py-3">
-              <span>Paste</span>
-              <span>Problem statement + code</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-line bg-white/70 px-4 py-3">
-              <span>Analyze</span>
-              <span>Tags, logic blocks, complexity</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-line bg-white/70 px-4 py-3">
-              <span>Apply</span>
-              <span>Choose the right approach</span>
-            </div>
-          </div>
         </div>
-        <div className="space-y-4">
-          <h3 className="text-2xl">Session history stays local</h3>
-          <p className="text-sm text-mist">
-            Every analysis you run is stored in your browser, ready to revisit
-            when you need a reminder.
-          </p>
-          <Link
-            to="/history"
-            className="inline-flex items-center gap-2 rounded-full border border-line bg-white/80 px-5 py-2 text-sm font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow"
-          >
-            Browse past sessions
-            <ArrowRight size={16} />
-          </Link>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>[+] local-first notes</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-sm leading-7 text-muted-foreground">
+            <p>[+] The browser stores session history for quick revisits.</p>
+            <p>[+] You can bring your own Gemini API key from the analyze page.</p>
+            <p>[+] The deployed Streamlit flows are left alone.</p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   )
